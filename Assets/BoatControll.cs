@@ -1,109 +1,114 @@
-﻿using UnityEngine;
-using PlayerStatus;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-    public class BoatControll : MonoBehaviour
+public class BoatControll : MonoBehaviour {
+
+
+    //the boat's current power
+	public float propellerPower;
+
+    //boats acceleration
+    public float acceleration;
+
+    //the boat's maximum engine power
+    public float maxPower;
+
+    //the boat's maximum reverse power
+    public float maxReversePower;
+
+    public Transform PropellerTransform;
+
+    private Rigidbody boatRB;
+
+    private float PropellerRotation;
+
+    //propeller start rotation
+    private Quaternion StartRotation;
+
+    private void Start()
     {
-      
-        //the boat's current power
-        public float propellerPower;
+        boatRB = GetComponent<Rigidbody>();
+        StartRotation = PropellerTransform.rotation;
+    }
+    void Update()
+    {
+        UserInput();
 
-        //boats acceleration
-        public float acceleration;
 
-        //the boat's maximum engine power
-        public float maxPower;
+    }
 
-        //the boat's maximum reverse power
-        public float maxReversePower;
-
-        public Transform PropellerTransform;
-
-        private Rigidbody boatRB;
-
-        private float PropellerRotation;
-
-        private void Start()
+    void UserInput()
+    {
+        //Drive backwards
+        if (Input.GetKey(KeyCode.S))
         {
-            boatRB = GetComponent<Rigidbody>();
-        }
-        void Update()
-        {
-            UserInput();
-        }
-        void UserInput()
-        {
-            //canot drive boat if in first person
-            if (Controll.IsFirstPerson == false)
+            if (currentSpeed() > -50f && propellerPower > -maxReversePower)
             {
-                //Drive backwards
-                if (Input.GetKey(KeyCode.S))
-                {
-                    if (currentSpeed() > -50f && propellerPower > -maxReversePower)
-                    {
-                        propellerPower -= acceleration * Time.deltaTime;
-                    }
-                }
-                //Drive Forward
-                else if (Input.GetKey(KeyCode.W))
-                {
-                    if (currentSpeed() < 50f && propellerPower < maxPower)
-                    {
-                        propellerPower += acceleration * Time.deltaTime * 2;
-                    }
-                }
-                else
-                {
-                    propellerPower = 0f;
-                }
-
-                //AddForce in Current Direction
-                Vector3 forceToAdd = PropellerTransform.forward * propellerPower;
-
-                boatRB.AddForceAtPosition(forceToAdd, PropellerTransform.position);
-
-                //Steer left
-                if (Input.GetKey(KeyCode.A))
-                {
-                    PropellerRotation = PropellerTransform.localEulerAngles.y + 2f;
-
-                    if (PropellerRotation > 10f && PropellerRotation < 270f)
-                    {
-                        PropellerRotation = 10f;
-                    }
-
-                    Vector3 newRotation = new Vector3(0f, PropellerRotation, 0f);
-
-                    PropellerTransform.localEulerAngles = newRotation;
-                }
-                //Steer right
-                else if (Input.GetKey(KeyCode.D))
-                {
-                    PropellerRotation = PropellerTransform.localEulerAngles.y - 2f;
-
-                    if (PropellerRotation < 350f && PropellerRotation > 90f)
-                    {
-                        PropellerRotation = 350f;
-                    }
-
-                    Vector3 newRotation = new Vector3(0f, PropellerRotation, 0f);
-
-                    PropellerTransform.localEulerAngles = newRotation;
-                }
-                else
-                {
-                    // return propellar to original rotation(so it goes forward)
-                    PropellerTransform.localEulerAngles = new Vector3(0f, 0f, 0f); ;
-                }
+                propellerPower -= acceleration * Time.deltaTime;
             }
         }
-        private Vector3 lastPosition;
-
-        private float currentSpeed()
+        //Drive Forward
+        else if (Input.GetKey(KeyCode.W))
         {
-            float CalculateSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
+            if (currentSpeed() < 50f && propellerPower < maxPower)
+            {
+                propellerPower += acceleration * Time.deltaTime*2;
+            }
+        }
+        else
+        {
+            propellerPower = 0f;
+        }
 
-            lastPosition = transform.position;
+        //AddForce in Current Direction
+        Vector3 forceToAdd = PropellerTransform.forward * propellerPower;
 
-            return CalculateSpeed;
+        boatRB.AddForceAtPosition(forceToAdd, PropellerTransform.position);
+
+        //Steer left
+        if (Input.GetKey(KeyCode.A))
+        {
+            PropellerRotation = PropellerTransform.localEulerAngles.y + 2f;
+
+            if (PropellerRotation > 10f && PropellerRotation < 270f)
+            {
+                PropellerRotation = 10f;
+            }
+
+            Vector3 newRotation = new Vector3(0f, PropellerRotation, 0f);
+
+            PropellerTransform.localEulerAngles = newRotation;
+        }
+        //Steer right
+        else if (Input.GetKey(KeyCode.D))
+        {
+            PropellerRotation = PropellerTransform.localEulerAngles.y - 2f;
+
+            if (PropellerRotation < 350f && PropellerRotation > 90f)
+            {
+                PropellerRotation = 350f;
+            }
+
+            Vector3 newRotation = new Vector3(0f, PropellerRotation, 0f);
+
+            PropellerTransform.localEulerAngles = newRotation;
+        }
+        else
+        {
+            // return propellar to original rotation(so it goes forward)
+            PropellerTransform.localEulerAngles = new Vector3(0f, 0f, 0f); ;
         }
     }
+
+    private Vector3 lastPosition;
+
+    private float currentSpeed()
+    {
+        float CalculateSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
+
+        lastPosition = transform.position;
+
+        return CalculateSpeed;
+    }
+}

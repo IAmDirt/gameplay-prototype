@@ -17,8 +17,8 @@ namespace WaterBuoyancy
         private float noiseStrength = 0.1f;
 
         private Mesh mesh;
-        public Vector3[] baseVertices;
-        public Vector3[] vertices;
+        private Vector3[] baseVertices;
+        private Vector3[] vertices;
 
         protected virtual void Awake()
         {
